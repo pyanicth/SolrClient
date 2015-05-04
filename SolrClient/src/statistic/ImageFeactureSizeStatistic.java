@@ -24,14 +24,14 @@ import org.opencv.features2d.KeyPoint;
 import com.company.FileSaver;
 import com.google.gson.Gson;
 
-public class ClassA {
+public class ImageFeactureSizeStatistic {
 
 	public static void main(String[] args) throws IOException {
 
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-		generateImageString("/Users/ruishan/book_covers/Droid");
-		generateImageFeature("/Users/ruishan/book_covers/Droid");
-		performStatistic();
+		// generateImageString("/Users/ruishan/out");
+		generateImageFeature("/Users/ruishan/out");
+		// performStatistic();
 	}
 
 	public static void generateImageString(String fileName) throws IOException {
@@ -66,43 +66,46 @@ public class ClassA {
 			// File currentFile = new
 			// File("/Users/ruishan/book_covers/Reference/020.jpg");
 			BufferedImage bufferedImage = ImageIO.read(currentFile);
-			DescriptorExtractor orbExtractor = DescriptorExtractor.create(DescriptorExtractor.ORB);
-			MatOfKeyPoint points = new MatOfKeyPoint();
+			if (null != bufferedImage) {
+				DescriptorExtractor orbExtractor = DescriptorExtractor.create(DescriptorExtractor.ORB);
+				MatOfKeyPoint points = new MatOfKeyPoint();
 
-			FeatureDetector orbDetector = FeatureDetector.create(FeatureDetector.ORB);
+				FeatureDetector orbDetector = FeatureDetector.create(FeatureDetector.ORB);
 
-			BufferedImage resizedImage = MySurfDocumentBuilder.resizeQueryImage(bufferedImage, 500);
+				BufferedImage resizedImage = MySurfDocumentBuilder.resizeQueryImage(bufferedImage, 1000);
+//				BufferedImage resizedImage = bufferedImage;
 
-			Mat mat = toMat(resizedImage);
-			orbDetector.detect(mat, points);
-			Mat features = new Mat();
-			orbExtractor.compute(mat, points, features);
-			int rows = features.rows();
+				Mat mat = toMat(resizedImage);
+				orbDetector.detect(mat, points);
+				Mat features = new Mat();
+				orbExtractor.compute(mat, points, features);
+				int rows = features.rows();
 
-			KeyPoint[] pointsArray = points.toArray();
+				KeyPoint[] pointsArray = points.toArray();
 
-			List<String> featureList = new ArrayList<String>();
-			int[][] points2DArray = new int[rows][2];
-			for (int j = 0; j < rows; j++) {
-				Mat feature = features.row(j);
-				OrbFeature orbFeature = new OrbFeature(feature);
+				List<String> featureList = new ArrayList<String>();
+				int[][] points2DArray = new int[rows][2];
+				for (int j = 0; j < rows; j++) {
+					Mat feature = features.row(j);
+					OrbFeature orbFeature = new OrbFeature(feature);
 
-				Point point = pointsArray[j].pt;
-				points2DArray[j][0] = (int) point.x;
-				points2DArray[j][1] = (int) point.y;
+					Point point = pointsArray[j].pt;
+					points2DArray[j][0] = (int) point.x;
+					points2DArray[j][1] = (int) point.y;
 
-				featureList.add(Base64.encodeBase64String(orbFeature.getByteArrayRepresentation()));
-			}
+					featureList.add(Base64.encodeBase64String(orbFeature.getByteArrayRepresentation()));
+				}
 
-			FeatureAndPoints obj = new FeatureAndPoints(featureList, points2DArray);
-			Gson gson = new Gson();
+				FeatureAndPoints obj = new FeatureAndPoints(featureList, points2DArray);
+				Gson gson = new Gson();
 
-			try {
-				String compressedString = compressString(gson.toJson(obj));
-				FileSaver.save("/Users/ruishan/fileStatistic/FeatureFile/" + i + ".txt", compressedString);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				try {
+//					String compressedString = compressString(gson.toJson(obj));
+					FileSaver.save("/Users/ruishan/fileStatistic/FeatureFile/" + i + ".txt", gson.toJson(obj));
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 		}
 		System.out.println("creating image feature string finished...");

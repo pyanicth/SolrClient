@@ -6,7 +6,6 @@ import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -33,8 +32,6 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexableField;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import com.stromberglabs.jopensurf.SURFInterestPoint;
 import com.stromberglabs.jopensurf.Surf;
 
@@ -54,9 +51,7 @@ public class Main {
 		 *           block e.printStackTrace(); } } }).run();; }
 		 */
 		// searchImageByByteArray("/Users/ruishan/book_covers/Droid");
-		orbSearch("/Users/ruishan/book_covers/Droid");
-		// infileGenerator();
-
+		orbSearch("/Users/ruishan/book_covers/Canon");
 	}
 
 	public static void orbSearch(String fileName) throws IOException {
@@ -66,84 +61,84 @@ public class Main {
 		int count = 0;
 		int sumCount = files.length;
 		UrlEncodedFormEntity entity;
-		 for (int i = 0; i < files.length; i++) {
-		 File currentFile = files[i];
-//		File currentFile = new File("/Users/ruishan/book_covers/Reference/020.jpg");
-		BufferedImage image = ImageIO.read(currentFile);
-		if (null != image) {
-			HttpPost post = new HttpPost("http://127.0.0.1:8983/solr/collection1/lireq");
-			ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-			String suffix = suffix(currentFile);
-			ImageIO.write(image, suffix, outStream);
+		for (int i = 0; i < files.length; i++) {
+			File currentFile = files[i];
+			// File currentFile = new
+			// File("/Users/ruishan/book_covers/Reference/020.jpg");
+			BufferedImage image = ImageIO.read(currentFile);
+			if (null != image) {
+				HttpPost post = new HttpPost("http://127.0.0.1:8983/solr/collection1/lireq");
+				ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+				String suffix = suffix(currentFile);
+				ImageIO.write(image, suffix, outStream);
 
-			List<NameValuePair> list = new ArrayList<NameValuePair>();
+				List<NameValuePair> list = new ArrayList<NameValuePair>();
 
-			HttpClient httpClient = new DefaultHttpClient();
+				HttpClient httpClient = new DefaultHttpClient();
 
-			NameValuePair pair2 = new BasicNameValuePair("image", Base64.encodeBase64String(outStream.toByteArray()));
+				NameValuePair pair2 = new BasicNameValuePair("image", Base64.encodeBase64String(outStream.toByteArray()));
 
-			FileSaver.save("/Users/ruishan/imageBase54StringSize.txt", Base64.encodeBase64String(outStream.toByteArray()));
+				NameValuePair pair3 = new BasicNameValuePair("field", "orb_ha");
+				// NameValuePair pair4 = new BasicNameValuePair("mode", "vw");
+				// NameValuePair pair5 = new BasicNameValuePair("rows", "30");
+				list.add(pair2);
+				list.add(pair3);
+				// list.add(pair4);
+				// list.add(pair5);
 
-			NameValuePair pair3 = new BasicNameValuePair("field", "orb_ha");
-			NameValuePair pair4 = new BasicNameValuePair("mode", "vw");
-			NameValuePair pair5 = new BasicNameValuePair("rows", "30");
-			list.add(pair2);
-			list.add(pair3);
-			list.add(pair4);
-			list.add(pair5);
+				entity = new UrlEncodedFormEntity(list, "utf-8");
+				post.setEntity(entity);
 
-			entity = new UrlEncodedFormEntity(list, "utf-8");
-			post.setEntity(entity);
-
-			HttpResponse httpResponse = httpClient.execute(post);
-			System.out.println(httpResponse.getStatusLine().getStatusCode());
-			if (httpResponse.getStatusLine().getStatusCode() == 200) {
-				InputStream in = httpResponse.getEntity().getContent();
-				String contentJson = getFileByte(in, (int) httpResponse.getEntity().getContentLength());
-				// System.out.println(contentJson);
-				contentJson = contentJson.trim();
-				// System.out.println("content:" + contentJson);
-				in.close();
-				SimResponse simResponse = gson.fromJson(contentJson, SimResponse.class);
-				// System.out.println("size:" +
-				// simResponse.getDocs().size());
-				// if (isSimBook(simResponse.getDocs().size() > 0 ?
-				// simResponse.getDocs().get(0).getId() :
-				// "",files[i].getAbsolutePath())) {
-				List<Doc> resultDocs = simResponse.getDocs();
-				if (null != resultDocs && resultDocs.size() > 0) {
-					String responseId = simResponse.getDocs().get(0).getId();
-					String requestId = currentFile.getAbsolutePath();
-					if (isSimBook(responseId.substring(responseId.lastIndexOf('/') + 1, responseId.length()), requestId.substring(requestId.lastIndexOf('/') + 1, requestId.length()))) {
-						System.out.println("request img:" + requestId + "; response img:" + responseId);
-						count++;
-						// } else if
-						// (isSimBook(simResponse.getDocs().get(1).getId(),
-						// requestId)) {
-						// System.out.println("request img:" + requestId +
-						// "; response img:" + responseId);
-						// count++;
-						// } else if
-						// (isSimBook(simResponse.getDocs().get(2).getId(),
-						// requestId)) {
-						// System.out.println("request img:" + requestId +
-						// "; response img:" + responseId);
-						// count++;
-						// }
-						// for (int i1 = 0; i1 < 30; i1++) {
-						// if (null != simResponse.getDocs()) {
-						// if (isSimBook(simResponse.getDocs().get(i1).getId(),
-						// requestId)) {
-						// System.out.println("request img:" + requestId +
-						// "; response img:" + responseId);
-						// count++;
-						// break;
-						// }
-						// }
+				HttpResponse httpResponse = httpClient.execute(post);
+				System.out.println(httpResponse.getStatusLine().getStatusCode());
+				if (httpResponse.getStatusLine().getStatusCode() == 200) {
+					InputStream in = httpResponse.getEntity().getContent();
+					String contentJson = getFileByte(in, (int) httpResponse.getEntity().getContentLength());
+					// System.out.println(contentJson);
+					contentJson = contentJson.trim();
+					// System.out.println("content:" + contentJson);
+					in.close();
+					SimResponse simResponse = gson.fromJson(contentJson, SimResponse.class);
+					// System.out.println("size:" +
+					// simResponse.getDocs().size());
+					// if (isSimBook(simResponse.getDocs().size() > 0 ?
+					// simResponse.getDocs().get(0).getId() :
+					// "",files[i].getAbsolutePath())) {
+					List<Doc> resultDocs = simResponse.getDocs();
+					if (null != resultDocs && resultDocs.size() > 0) {
+						String responseId = simResponse.getDocs().get(0).getId();
+						String requestId = currentFile.getAbsolutePath();
+						if (isSimBook(responseId.substring(responseId.lastIndexOf('/') + 1, responseId.length()), requestId.substring(requestId.lastIndexOf('/') + 1, requestId.length()))) {
+							System.out.println("request img:" + requestId + "; response img:" + responseId);
+							count++;
+							// } else if
+							// (isSimBook(simResponse.getDocs().get(1).getId(),
+							// requestId)) {
+							// System.out.println("request img:" + requestId +
+							// "; response img:" + responseId);
+							// count++;
+							// } else if
+							// (isSimBook(simResponse.getDocs().get(2).getId(),
+							// requestId)) {
+							// System.out.println("request img:" + requestId +
+							// "; response img:" + responseId);
+							// count++;
+							// }
+							// for (int i1 = 0; i1 < 30; i1++) {
+							// if (null != simResponse.getDocs()) {
+							// if
+							// (isSimBook(simResponse.getDocs().get(i1).getId(),
+							// requestId)) {
+							// System.out.println("request img:" + requestId +
+							// "; response img:" + responseId);
+							// count++;
+							// break;
+							// }
+							// }
+						}
 					}
+					System.out.println("i:" + i + " count:" + count);
 				}
-				 System.out.println("i:" + i + " count:" + count);
-				 }
 			}
 		}
 		System.out.println("similar count:" + count);
@@ -357,31 +352,4 @@ public class Main {
 		return resizedImage;
 	}
 
-	public static void infileGenerator() throws IOException {
-		String saveTo = "/Users/ruishan/infile.txt";
-
-		String path = "/Users/ruishan/book_covers/Reference/0";
-		String sufix = ".jpg";
-
-		JsonArray jsonArray = new JsonArray();
-
-		for (int i = 1; i < 100; i++) {
-			JsonObject obj = new JsonObject();
-			String temp;
-			if (i < 10) {
-				temp = "0" + String.valueOf(i);
-			} else {
-				temp = String.valueOf(i);
-			}
-			obj.addProperty("path", path + temp + sufix);
-			obj.addProperty("ISBN", i);
-			jsonArray.add(obj);
-		}
-		File out = new File(saveTo);
-		FileWriter jsonFileWriter = new FileWriter(out);
-		jsonFileWriter.write(jsonArray.toString());
-		jsonFileWriter.flush();
-		jsonFileWriter.close();
-
-	}
 }
