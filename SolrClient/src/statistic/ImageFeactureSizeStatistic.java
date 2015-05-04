@@ -29,9 +29,9 @@ public class ImageFeactureSizeStatistic {
 	public static void main(String[] args) throws IOException {
 
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-		// generateImageString("/Users/ruishan/out");
+		generateImageString("/Users/ruishan/out");
 		generateImageFeature("/Users/ruishan/out");
-		// performStatistic();
+		performStatistic();
 	}
 
 	public static void generateImageString(String fileName) throws IOException {
@@ -44,12 +44,11 @@ public class ImageFeactureSizeStatistic {
 			// File currentFile = new
 			// File("/Users/ruishan/book_covers/Reference/020.jpg");
 			BufferedImage image = ImageIO.read(currentFile);
-			ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-			String suffix = suffix(currentFile);
-			BufferedImage resizedImage = MySurfDocumentBuilder.resizeQueryImage(image, 500);
-			ImageIO.write(resizedImage, suffix, outStream);
-
 			if (null != image) {
+				ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+				String suffix = suffix(currentFile);
+				BufferedImage resizedImage = MySurfDocumentBuilder.resizeQueryImage(image, 1000);
+				ImageIO.write(resizedImage, suffix, outStream);
 
 				FileSaver.save("/Users/ruishan/fileStatistic/imageStringFile/" + i + ".txt", Base64.encodeBase64String(outStream.toByteArray()));
 			}
@@ -73,7 +72,7 @@ public class ImageFeactureSizeStatistic {
 				FeatureDetector orbDetector = FeatureDetector.create(FeatureDetector.ORB);
 
 				BufferedImage resizedImage = MySurfDocumentBuilder.resizeQueryImage(bufferedImage, 1000);
-//				BufferedImage resizedImage = bufferedImage;
+				// BufferedImage resizedImage = bufferedImage;
 
 				Mat mat = toMat(resizedImage);
 				orbDetector.detect(mat, points);
@@ -81,7 +80,7 @@ public class ImageFeactureSizeStatistic {
 				orbExtractor.compute(mat, points, features);
 				int rows = features.rows();
 
-				KeyPoint[] pointsArray = points.toArray();
+				KeyPoint[] keyPoints = points.toArray();
 
 				List<String> featureList = new ArrayList<String>();
 				int[][] points2DArray = new int[rows][2];
@@ -89,21 +88,22 @@ public class ImageFeactureSizeStatistic {
 					Mat feature = features.row(j);
 					OrbFeature orbFeature = new OrbFeature(feature);
 
-					Point point = pointsArray[j].pt;
+					Point point = keyPoints[j].pt;
 					points2DArray[j][0] = (int) point.x;
 					points2DArray[j][1] = (int) point.y;
 
 					featureList.add(Base64.encodeBase64String(orbFeature.getByteArrayRepresentation()));
 				}
 
-				FeatureAndPoints obj = new FeatureAndPoints(featureList, points2DArray);
+				int[] pointsArray = towDArrayToOneDArray(points2DArray);
+				FeatureAndPoints obj = new FeatureAndPoints(featureList, pointsArray);
 				Gson gson = new Gson();
 
 				try {
-//					String compressedString = compressString(gson.toJson(obj));
+					// String compressedString =
+					// compressString(gson.toJson(obj));
 					FileSaver.save("/Users/ruishan/fileStatistic/FeatureFile/" + i + ".txt", gson.toJson(obj));
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
@@ -111,7 +111,23 @@ public class ImageFeactureSizeStatistic {
 		System.out.println("creating image feature string finished...");
 	}
 
-	public static void performStatistic() {
+	public static int[] towDArrayToOneDArray(int[][] points2dArray) {
+		if (null == points2dArray) {
+			return null;
+		}
+		int length = points2dArray.length;
+		int[] out = new int[length * points2dArray[0].length];
+		int pos = 0;
+		for (int i = 0; i < length; i++) {
+			int[] temp = points2dArray[i];
+			for (int j = 0; j < temp.length; j++) {
+				out[pos++] = temp[j];
+			}
+		}
+		return out;
+	}
+
+	private static void performStatistic() {
 		System.out.println("average image string file size is " + calculateAllFilesSize("/Users/ruishan/fileStatistic/imageStringFile") + " KB");
 		System.out.println("average image feature file size is " + calculateAllFilesSize("/Users/ruishan/fileStatistic/FeatureFile") + " KB");
 

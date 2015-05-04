@@ -8,16 +8,22 @@ public class FeatureAndPoints {
 
 	private List<String> features;
 	private List<Point> pointsList;
-	private int[][] pointsArray;
+	private int[][] points2DArray;
+	private int[] pointsArray;
 
 	public FeatureAndPoints(List<String> features, List<Point> points) {
 		this.features = features;
 		this.pointsList = points;
 	}
 
-	public FeatureAndPoints(List<String> features, int[][] pointsArray) {
+	public FeatureAndPoints(List<String> features, int[][] points2DArray) {
 		this.features = features;
-		this.setPointsArray(pointsArray);
+		this.points2DArray = points2DArray;
+	}
+
+	public FeatureAndPoints(List<String> features, int[] pointsArray) {
+		this.features = features;
+		this.pointsArray = pointsArray;
 	}
 
 	public List<String> getFeatures() {
@@ -36,12 +42,19 @@ public class FeatureAndPoints {
 		this.pointsList = points;
 	}
 
-	public int[][] getPointsArray() {
+	public int[][] getPoints2DArray() {
+		return points2DArray;
+	}
+
+	public void setPoints2DArray(int[][] pointsArray) {
+		this.points2DArray = pointsArray;
+	}
+
+	public int[] getPointsArray() {
 		return pointsArray;
 	}
 
-	public void setPointsArray(int[][] pointsArray) {
+	public void setPointsArray(int[] pointsArray) {
 		this.pointsArray = pointsArray;
 	}
-
 }
