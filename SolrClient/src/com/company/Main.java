@@ -50,11 +50,15 @@ public class Main {
 		 *           ); } catch (IOException e) { // TODO Auto-generaed catch
 		 *           block e.printStackTrace(); } } }).run();; }
 		 */
-		// searchImageByByteArray("/Users/ruishan/book_covers/Droid");
-		orbSearch("/Users/ruishan/book_covers/Canon");
+//		 searchImageByByteArray("/Users/ruishan/book_covers/Droid");
+		orbImageSearch("/Users/ruishan/book_covers/Canon");
 	}
 
-	public static void orbSearch(String fileName) throws IOException {
+	public static void orbFeatureSearch(String fileName) {
+
+	}
+
+	public static void orbImageSearch(String fileName) throws IOException {
 		File file = new File(fileName);
 		File[] files = file.listFiles();
 		Gson gson = new Gson();
@@ -77,14 +81,13 @@ public class Main {
 				HttpClient httpClient = new DefaultHttpClient();
 
 				NameValuePair pair2 = new BasicNameValuePair("image", Base64.encodeBase64String(outStream.toByteArray()));
-
 				NameValuePair pair3 = new BasicNameValuePair("field", "orb_ha");
-				// NameValuePair pair4 = new BasicNameValuePair("mode", "vw");
-				// NameValuePair pair5 = new BasicNameValuePair("rows", "30");
+				 NameValuePair pair4 = new BasicNameValuePair("mode", "vw");
+//				NameValuePair pair5 = new BasicNameValuePair("rows", "30");
 				list.add(pair2);
 				list.add(pair3);
-				// list.add(pair4);
-				// list.add(pair5);
+				 list.add(pair4);
+//				list.add(pair5);
 
 				entity = new UrlEncodedFormEntity(list, "utf-8");
 				post.setEntity(entity);
@@ -94,16 +97,9 @@ public class Main {
 				if (httpResponse.getStatusLine().getStatusCode() == 200) {
 					InputStream in = httpResponse.getEntity().getContent();
 					String contentJson = getFileByte(in, (int) httpResponse.getEntity().getContentLength());
-					// System.out.println(contentJson);
 					contentJson = contentJson.trim();
-					// System.out.println("content:" + contentJson);
 					in.close();
 					SimResponse simResponse = gson.fromJson(contentJson, SimResponse.class);
-					// System.out.println("size:" +
-					// simResponse.getDocs().size());
-					// if (isSimBook(simResponse.getDocs().size() > 0 ?
-					// simResponse.getDocs().get(0).getId() :
-					// "",files[i].getAbsolutePath())) {
 					List<Doc> resultDocs = simResponse.getDocs();
 					if (null != resultDocs && resultDocs.size() > 0) {
 						String responseId = simResponse.getDocs().get(0).getId();
