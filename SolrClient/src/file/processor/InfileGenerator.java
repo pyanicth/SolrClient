@@ -7,6 +7,9 @@ import java.io.IOException;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+/**
+	modified for testing branch v_1.0
+*/
 public class InfileGenerator {
 
 	public static void main(String[] args) throws IOException {

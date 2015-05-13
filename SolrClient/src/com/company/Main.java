@@ -50,8 +50,8 @@ public class Main {
 		 *           ); } catch (IOException e) { // TODO Auto-generaed catch
 		 *           block e.printStackTrace(); } } }).run();; }
 		 */
-//		 searchImageByByteArray("/Users/ruishan/book_covers/Droid");
-		orbImageSearch("/Users/ruishan/book_covers/Canon");
+		searchImageByByteArray("/Users/ruishan/book_covers/Droid");
+//		 orbImageSearch("/Users/ruishan/book_covers/iPhone");
 	}
 
 	public static void orbFeatureSearch(String fileName) {
@@ -82,12 +82,12 @@ public class Main {
 
 				NameValuePair pair2 = new BasicNameValuePair("image", Base64.encodeBase64String(outStream.toByteArray()));
 				NameValuePair pair3 = new BasicNameValuePair("field", "orb_ha");
-				 NameValuePair pair4 = new BasicNameValuePair("mode", "vw");
-//				NameValuePair pair5 = new BasicNameValuePair("rows", "30");
+				// NameValuePair pair4 = new BasicNameValuePair("mode", "vw");
+				// NameValuePair pair5 = new BasicNameValuePair("rows", "30");
 				list.add(pair2);
 				list.add(pair3);
-				 list.add(pair4);
-//				list.add(pair5);
+				// list.add(pair4);
+				// list.add(pair5);
 
 				entity = new UrlEncodedFormEntity(list, "utf-8");
 				post.setEntity(entity);
@@ -131,6 +131,8 @@ public class Main {
 							// break;
 							// }
 							// }
+						} else {
+							System.out.println("request img:" + requestId);
 						}
 					}
 					System.out.println("i:" + i + " count:" + count);
@@ -150,8 +152,10 @@ public class Main {
 		int sumCount = files.length;
 		for (int i = 0; i < files.length; i++) {
 			File currentFile = files[i];
+			// File currentFile = new
+			// File("/Users/ruishan/book_covers/Droid/020.jpg");
 			BufferedImage image = ImageIO.read(currentFile);
-			HttpPost post = new HttpPost("http://127.0.0.1:8983/solr/collection1/lireq");
+			HttpPost post = new HttpPost("http://192.168.100.2:8988/solr/collection1/lireq");
 			ByteArrayOutputStream outStream = new ByteArrayOutputStream();
 			String suffix = suffix(currentFile);
 			ImageIO.write(image, suffix, outStream);
@@ -162,8 +166,10 @@ public class Main {
 
 			NameValuePair pair2 = new BasicNameValuePair("image", Base64.encodeBase64String(outStream.toByteArray()));
 			NameValuePair pair3 = new BasicNameValuePair("field", "su_ha");
+			NameValuePair pair4 = new BasicNameValuePair("mode", "vw");
 			list.add(pair2);
 			list.add(pair3);
+			list.add(pair4);
 
 			UrlEncodedFormEntity entity;
 			entity = new UrlEncodedFormEntity(list, "utf-8");
@@ -176,7 +182,8 @@ public class Main {
 				String contentJson = getFileByte(in, (int) httpResponse.getEntity().getContentLength());
 				contentJson = contentJson.trim();
 				SimResponse simResponse = gson.fromJson(contentJson, SimResponse.class);
-				if (isSimBook(simResponse.getDocs().get(0).getId(), files[i].getAbsolutePath())) {
+				if (isSimBook(simResponse.getDocs().get(0).getId(), currentFile.getAbsolutePath())) {
+					System.out.println("request: " + currentFile.getAbsolutePath() + "; response: " + simResponse.getDocs().get(0).getId());
 					count++;
 				}
 				System.out.println("i:" + i + " count:" + count);
